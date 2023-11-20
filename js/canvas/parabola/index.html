@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <style>
+      canvas {
+        border: 1px dotted violet;
+
+        background-color: tomato;
+      }
+    </style>
+
+    <script type="text/javascript">
+      //초기변수
+
+      var context;
+
+      var velocity;
+
+      var angle;
+
+      var ballv;
+
+      var ballvx;
+
+      var ballvy;
+
+      var ballX = 10;
+
+      var ballY = 250;
+
+      var ballRadius = 10;
+
+      var score = 0;
+
+      var timer;
+
+      //공
+
+      function drawBall() {
+        context.beginPath();
+
+        context.arc(ballX, ballY, ballRadius, 0, 2.0 * Math.PI, true);
+
+        context.fillStyle = "yello";
+
+        context.fill();
+      }
+
+      //캔버스 초기화 후 배경,공 호출
+
+      function draw() {
+        context.clearRect(0, 0, 500, 300);
+
+        drawBackground();
+
+        drawBall();
+      }
+
+      //배경
+
+      function drawBackground() {
+        //이미지 객체 생성
+
+        var image = new Image();
+
+        var backimage = new Image();
+
+        //body가 load 상태에서 이미지를 한번더 load
+
+        image.addEventListener(
+          "load",
+          function () {
+            context = document.getElementById("canvas").getContext("2d");
+
+            // canvas위에 얹을 이미지 좌표 선정
+
+            context.drawImage(image, 0, 270);
+          },
+          false
+        );
+
+        backimage.addEventListener(
+          "load",
+          function () {
+            //배경이미지 동일
+
+            context = document.getElementById("canvas").getContext("2d");
+
+            context.drawImage(backimage, 450, 60);
+          },
+          false
+        );
+
+        //이미지 경로 설정
+
+        image.src = "lawn.png";
+
+        backimage.src = "net.png";
+      }
+
+      /* html실행시 초기화 */
+
+      function init() {
+        ballX = 10;
+
+        ballY = 250;
+
+        ballRadius = 10;
+
+        context = document.getElementById("canvas").getContext("2d");
+
+        draw();
+      }
+
+      //발사버튼
+
+      function start() {
+        init();
+
+        velocity = Number(document.getElementById("velocity").value);
+
+        angle = Number(document.getElementById("angle").value);
+
+        var angleR = (angle * Math.PI) / 180;
+
+        ballvx = velocity * Math.cos(angleR);
+
+        ballvy = -velocity * Math.tan(angleR);
+
+        draw();
+
+        timer = setInterval(calculate, 100);
+
+        return false;
+      }
+
+      //공의값 계산
+
+      function calculate() {
+        //중력 가속도
+
+        ballvy = ballvy + 1.98;
+
+        ballX = ballX + ballvx;
+
+        ballY = ballY + ballvy;
+
+        draw();
+
+        //공이 골대 이미지에 이동했을때
+
+        if (ballX >= 450 && ballX <= 480 && ballY >= 60 && ballY <= 210) {
+          score++; //스코어 1점 누적
+
+          document.getElementById("scr").innerHTML = "점수=" + score;
+
+          //1점당 속도 각도 초기화
+
+          document.getElementById("velocity").value = "0";
+
+          document.getElementById("angle").value = "0";
+
+          clearInterval(timer);
+        }
+
+        //경계를 벚어났을때
+
+        if (ballY >= 300 || ballY < 0) {
+          clearInterval(timer);
+        }
+
+        draw();
+      }
+    </script>
+  </head>
+
+  <body onload="init();">
+    <canvas id="canvas" width="500" height="300"></canvas>
+
+    <div id="ctrl">
+      속도<input
+        id="velocity"
+        value="10"
+        min="0"
+        max="100"
+        type="number"
+        step="1"
+      />
+
+      각도<input id="angle" value="10" min="0" max="100" type="number" />
+
+      <button onclick="start()">발사</button>
+
+      <div id="scr">점수 = 0</div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+a.out
+a.out*
+*.o
+*.bin.txt
+*.su
+.vscode
+.DS_Store
+node_modules
+/**/.next
+*.env
+*-config.json
+.cache
+.parcel-*
+dist/
+build/

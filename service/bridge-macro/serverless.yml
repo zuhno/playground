@@ -1,0 +1,27 @@
+marketPlaceApplication:
+  component: "@sls-next/serverless-component@3.7.0"
+
+  inputs:
+    roleArn: ${env.AWS_ROLE_ARN}
+    bucketName: ${env.AWS_S3_BUCKET}
+    bucketRegion: ${env.AWS_S3_BUCKET_REGION}
+    description: ${env.AWS_S3_BUCKET}
+    cloudfront:
+      distributionId: ${env.AWS_CF_DISTRIBUTION_ID}
+      defaults:
+        forward:
+          headers: ["Accept", "Accept-Language", "User-Agent"]
+    name:
+      defaultLambda: ${env.AWS_DEFAULT_LAMBDA}
+      # apiLambda: ${env.AWS_API_LAMBDA}
+    runtime:
+      defaultLambda: "nodejs14.x"
+      apiLambda: "nodejs14.x"
+      imageLambda: "nodejs14.x"
+    timeout:
+      defaultLambda: 20
+      apiLambda: 15
+      imageLambda: 15
+    publicDirectoryCache:
+      value: public, max-age=604800
+      test: /\.(gif|jpe?g|png|txt|xml|woff)$/i
