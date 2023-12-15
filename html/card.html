@@ -36,9 +36,9 @@
           rgba(255, 255, 255, 0) 100%
         );
         mix-blend-mode: color-dodge;
-        background-size: 75%;
-        background-repeat: no-repeat;
-        background-position: 0% 100%;
+        background-size: 90% 100%;
+        background-position: 100%;
+        background-repeat: repeat;
       }
     </style>
   </head>
@@ -57,12 +57,11 @@
 
         const { offsetX, offsetY } = e;
 
-        const x = -(offsetX - container.clientWidth / 2) * 0.133;
-        const y = (offsetY - container.clientHeight / 2) * 0.095;
-        const p = x * 3.5;
+        const x = (-2 / 15) * offsetX + 20;
+        const y = (2 / 21) * offsetY - 20;
 
-        container.style.transform = `perspective(100rem) rotateY(${x}deg) rotateX(${y}deg)`;
-        overlay.style.backgroundPositionX = `${p}%`;
+        container.style.transform = `perspective(400px) rotateY(${x}deg) rotateX(${y}deg)`;
+        overlay.style.backgroundPosition = `${8 * x + y / 0.4}%`;
       });
 
       container.addEventListener("mouseleave", () => {
@@ -70,7 +69,7 @@
         overlay.style.transition = "all 1s";
 
         container.style.transform = "initial";
-        overlay.style.backgroundPositionX = "0%";
+        overlay.style.backgroundPosition = "100%";
       });
     </script>
   </body>
