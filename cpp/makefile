@@ -22,7 +22,7 @@ _clean:
 # make main.c into c dir
 new:
 ifneq ($(wildcard main.cpp),)
-	@echo "main.c already exists. Aborting."
+	@echo "main.cpp already exists. Aborting."
 else
 	@touch main.cpp
 	@echo "#include <iostream>\n\nint main(int argc, char *argv[]) {\n\tstd::cout << \"Hello World!\" << std::endl;\n\treturn 0; \n}" >> main.cpp
