@@ -18,6 +18,7 @@ public:
   int attack();
   Marine &be_attacked(int damage_earn);
   void move(int x, int y);
+  int *test();
 
   void show_status();
   static void show_total_marine();
