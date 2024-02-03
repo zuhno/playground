@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:mpeg:dash:schema:mpd:2011"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011 http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-DASH_schema_files/DASH-MPD.xsd"
+  profiles="urn:mpeg:dash:profile:isoff-live:2011"
+  type="static"
+  mediaPresentationDuration="PT9M56.458S"
+  minBufferTime="PT1.5S"
+>
+  <ProgramInformation>
+    <title>sample.mp4</title>
+  </ProgramInformation>
+  <Location
+    >http://localhost:1935/vod/_definst_/mp4:sample.mp4/manifest_w1759006020.mpd</Location
+  >
+  <Period id="0" start="PT0.0S">
+    <AdaptationSet
+      id="0"
+      mimeType="video/mp4"
+      width="424"
+      height="240"
+      par="16:9"
+      frameRate="24"
+      segmentAlignment="true"
+      startWithSAP="1"
+      subsegmentAlignment="true"
+      subsegmentStartsWithSAP="1"
+    >
+      <SegmentTemplate
+        timescale="90000"
+        media="chunk_ctvideo_cfm4s_rid$RepresentationID$_cs$Time$_w1759006020_mpd.m4s"
+        initialization="chunk_ctvideo_cfm4s_rid$RepresentationID$_cinit_w1759006020_mpd.m4s"
+      >
+        <SegmentTimeline>
+          <s t="0" d="1012500" />
+          <s d="1012500" />
+          <s d="1012500" />
+          <s d="1012500" />
+          <s d="918720" />
+          <s d="1110060" />
+          <s d="1057500" />
+          <s d="941220" />
+          <s d="1162530" />
+          <s d="900000" />
+          <s d="971190" />
+          <s d="982530" />
+          <s d="1012500" />
+          <s d="933750" />
+          <s d="903780" />
+          <s d="907470" />
+          <s d="1188720" />
+          <s d="945000" />
+          <s d="1061280" />
+          <s d="1095030" />
+          <s d="1117440" />
+          <s d="993780" />
+          <s d="1027530" />
+          <s d="1012500" />
+          <s d="1031220" />
+          <s d="974970" />
+          <s d="967500" />
+          <s d="1031310" />
+          <s d="1173690" />
+          <s d="1106280" />
+          <s d="1012500" />
+          <s d="1012500" />
+          <s d="941220" />
+          <s d="1098810" />
+          <s d="1008720" />
+          <s d="1076220" />
+          <s d="1076310" />
+          <s d="967500" />
+          <s d="1023750" />
+          <s d="1199970" />
+          <s d="911250" />
+          <s d="990000" />
+          <s d="1207530" />
+          <s d="1001250" />
+          <s d="1012500" />
+          <s d="1012500" />
+          <s d="1012500" />
+          <s d="1012500" />
+          <s d="1012500" />
+          <s d="1012500" />
+          <s d="1012500" />
+          <s d="1012500" />
+          <s d="476190" />
+        </SegmentTimeline>
+      </SegmentTemplate>
+      <Representation
+        id="p0a0r0"
+        codecs="avc1.42c01e"
+        sar="1:1"
+        bandwidth="420000"
+      />
+    </AdaptationSet>
+    <AdaptationSet
+      id="1"
+      mimeType="audio/mp4"
+      lang="eng"
+      segmentAlignment="true"
+      startWithSAP="1"
+      subsegmentAlignment="true"
+      subsegmentStartsWithSAP="1"
+    >
+      <Role schemeIdUri="urn:mpeg:dash:role:2011" value="main" />
+      <SegmentTemplate
+        timescale="48000"
+        media="chunk_ctaudio_cfm4s_rid$RepresentationID$_cs$Time$_w1759006020_mpd.m4s"
+        initialization="chunk_ctaudio_cfm4s_rid$RepresentationID$_cinit_w1759006020_mpd.m4s"
+      >
+        <SegmentTimeline>
+          <s t="0" d="540000" />
+          <s d="540000" />
+          <s d="540000" />
+          <s d="540000" />
+          <s d="489984" />
+          <s d="592032" />
+          <s d="564000" />
+          <s d="501984" />
+          <s d="620016" />
+          <s d="480000" />
+          <s d="517968" />
+          <s d="524016" />
+          <s d="540000" />
+          <s d="498000" />
+          <s d="482016" />
+          <s d="483984" />
+          <s d="633984" />
+          <s d="504000" />
+          <s d="566016" />
+          <s d="584016" />
+          <s d="595968" />
+          <s d="530016" />
+          <s d="548016" />
+          <s d="540000" />
+          <s d="549984" />
+          <s d="519984" />
+          <s d="516000" />
+          <s d="550032" />
+          <s d="625968" />
+          <s d="590016" />
+          <s d="540000" />
+          <s d="540000" />
+          <s d="501984" />
+          <s d="586032" />
+          <s d="537984" />
+          <s d="573984" />
+          <s d="574032" />
+          <s d="516000" />
+          <s d="546000" />
+          <s d="639984" />
+          <s d="486000" />
+          <s d="528000" />
+          <s d="644016" />
+          <s d="534000" />
+          <s d="540000" />
+          <s d="540000" />
+          <s d="540000" />
+          <s d="540000" />
+          <s d="540000" />
+          <s d="540000" />
+          <s d="540000" />
+          <s d="540000" />
+          <s d="253968" />
+        </SegmentTimeline>
+      </SegmentTemplate>
+      <Representation
+        id="p0a1r0"
+        codecs="mp4a.40.2"
+        audioSamplingRate="48000"
+        bandwidth="99000"
+      >
+        <AudioChannelConfiguration
+          schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011"
+          value="2"
+        />
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
