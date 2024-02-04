@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MPD
+  xmlns="urn:mpeg:dash:schema:mpd:2011"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011 http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-DASH_schema_files/DASH-MPD.xsd"
+  profiles="urn:mpeg:dash:profile:isoff-on-demand:2011"
+  minBufferTime="PT2S"
+  type="static"
+  mediaPresentationDuration="PT15.71845817565918S">
+  <Period id="0" duration="PT15.71845817565918S">
+  <AdaptationSetptationSet
+      id="0"
+      contentType="video"
+      frameRate="15360/512"
+      subsegmentAlignment="true"
+      par="9:16"
+      FBUnifiedUploadResolutionMos="360:77.3">
+      <Representation
+        id="879536717508727v"
+        bandwidth="949917"
+        codecs="vp09.00.31.08.00.01.01.01.00"
+        mimeType="video/mp4"
+        sar="1:1"
+        FBEncodingTag="dash_vp9eve_1_v1"
+        FBPlaybackResolutionMos="0:100,360:85.8,480:82.8,720:79.9,1080:77.1"
+        FBPlaybackResolutionMosConfidenceLevel="high"
+        FBPlaybackResolutionCsvqm="0:100,360:97.5,480:96.9,720:95.1,1080:90.6"
+        width="720"
+        height="1280"
+        FBQualityClass="hd"
+        FBQualityLabel="720p"
+        ><BaseURL
+          >https://scontent.cdninstagram.com/v/t66.30100-16/323590030_867430748458622_442055958204322600_n.mp4?_nc_cat=103&amp;ccb=1-7&amp;_nc_sid=9a5d50&amp;efg=eyJ2ZW5jb2RlX3RhZyI6ImlnLXhwdmRzLmNsaXBzLmMyLUMzLmRhc2hfdnA5ZXZlXzFfdjEifQ%3D%3D&amp;_nc_ohc=YrSkMxVUiq8AX8-nfV6&amp;_nc_ht=scontent.cdninstagram.com&amp;oh=00_AfCkDP2244AnCSrQAxE6WYrEcBT31aGzGldTJ132--UpOA&amp;oe=65C301FB</BaseURL
+        ><SegmentBase
+          indexRange="792-871"
+          timescale="15360"
+          FBFirstSegmentRange="872-532204"
+          FBFirstSegmentDuration="5000"
+          FBSecondSegmentRange="532205-1156477"
+          FBPrefetchSegmentRange="872-532204"
+          FBPrefetchSegmentDuration="5000"
+          ><Initialization range="0-791" /></SegmentBase></Representation
+      ></AdaptationSetptationSet
+    ><AdaptationSet id="1" contentType="audio" subsegmentAlignment="true"
+      ><Representation
+        id="331713459607459ad"
+        bandwidth="80509"
+        codecs="mp4a.40.5"
+        mimeType="audio/mp4"
+        audioSamplingRate="44100"
+        FBEncodingTag="dash_ln_audio_v1"
+        FBDefaultQuality="1"
+        ><AudioChannelConfiguration
+          schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011"
+          value="2" /><BaseURL
+          >https://scontent.cdninstagram.com/v/t66.30100-16/316639118_1545822006214137_6309694758948845096_n.mp4?_nc_cat=102&amp;ccb=1-7&amp;_nc_sid=9a5d50&amp;efg=eyJ2ZW5jb2RlX3RhZyI6ImlnLXhwdmRzLmNsaXBzLmMyLUMzLmRhc2hfbG5fYXVkaW9fdjEifQ%3D%3D&amp;_nc_ohc=IQOmKiHvj0cAX9AUJoc&amp;_nc_ht=scontent.cdninstagram.com&amp;oh=00_AfAVcxOoACyia5POEUTfwpkbMT3fwVXaXBqIagMTjlCFaA&amp;oe=65C23D21</BaseURL
+        ><SegmentBase
+          indexRange="817-944"
+          timescale="44100"
+          FBFirstSegmentRange="945-21288"
+          FBFirstSegmentDuration="2021"
+          FBSecondSegmentRange="21289-41215"
+          FBPrefetchSegmentRange="945-21288"
+          FBPrefetchSegmentDuration="2021"
+          ><Initialization
+            range="0-816" /></SegmentBase></Representation></AdaptationSet></Period
+></MPD>
