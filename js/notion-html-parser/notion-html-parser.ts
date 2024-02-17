@@ -11,8 +11,16 @@ const customIndex = ({
   matchedColor: string;
 }) => {
   const $ = load(htmlStr);
+  const existingStyle = $("style").html();
+
+  const newCssRule = `
+    @media (max-width: 1029px) {
+      nav { display: none !important; }
+    }
+  `;
 
   $("html").css("scroll-behavior", "smooth");
+  $("style").text(`${existingStyle}\n${newCssRule}`);
   $("body")
     .css("max-width", "1000px")
     .css("display", "flex")
@@ -25,7 +33,9 @@ const customIndex = ({
     .css("flex-direction", "column")
     .css("position", "relative");
 
-  // $("header").remove();
+  $("header > img")
+    .css("border-radius", "4px")
+    .css("border", "1px solid #00000008");
 
   $("nav")
     .insertBefore("body")
@@ -111,7 +121,7 @@ const customIndex = ({
         ticking = true;
       }
     });
-</script>`);
+  </script>`);
 
   return $.html();
 };
