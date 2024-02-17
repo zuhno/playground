@@ -4,16 +4,17 @@ import * as path from "https://deno.land/std/path/mod.ts";
 const customIndex = ({
   htmlStr,
   indexTitle,
-  matchedColor,
 }: {
   htmlStr: string;
   indexTitle?: string;
-  matchedColor: string;
 }) => {
   const $ = load(htmlStr);
   const existingStyle = $("style").html();
 
   const newCssRule = `
+    .hover-effect:hover {
+      color: rgb(237, 68, 66);
+    }
     @media (max-width: 1029px) {
       nav { display: none !important; }
     }
@@ -24,7 +25,8 @@ const customIndex = ({
   $("body")
     .css("max-width", "1000px")
     .css("display", "flex")
-    .css("position", "relative");
+    .css("position", "relative")
+    .css("padding", "0 20px");
 
   $("article")
     .css("width", "100%")
@@ -34,7 +36,7 @@ const customIndex = ({
     .css("position", "relative");
 
   $("header > img")
-    .css("border-radius", "4px")
+    .css("border-radius", "8px")
     .css("border", "1px solid #00000008");
 
   $("nav")
@@ -55,7 +57,10 @@ const customIndex = ({
     .css("width", "fit-content")
     .css("height", "fit-content")
     .css("border", "none");
-  $("nav > div > a").css("border", "none");
+  $("nav > div > a")
+    .css("font-size", "1em")
+    .css("border", "none")
+    .addClass("hover-effect");
 
   if (indexTitle) {
     $("nav").prepend(
@@ -73,7 +78,7 @@ const customIndex = ({
       if(!nav) return;
 
       let closestHeadingAboveScreenTop = null;
-      const padding = 30;
+      const padding = 100;
 
       headings.forEach((heading) => {
         const distanceFromTop = heading.getBoundingClientRect().top - padding;
@@ -89,7 +94,7 @@ const customIndex = ({
       if (closestHeadingAboveScreenTop) {
         navLinks.forEach((link) => {
           if (link.getAttribute('href') === '#' + closestHeadingAboveScreenTop.id) {
-            link.style.color = '${matchedColor}';
+            link.style.color = 'rgb(237, 68, 66)';
           }
         });
       }
@@ -104,7 +109,7 @@ const customIndex = ({
         const linkHash = link.getAttribute('href');
 
         if (linkHash === currentHash) {
-          link.style.color = '${matchedColor}';
+          link.style.color = 'rgb(237, 68, 66)';
         }
       });
     }
@@ -157,18 +162,15 @@ const removeImgAnchor = ({ htmlStr }: { htmlStr: string }) => {
 const parse = ({
   originHtmlStr,
   indexTitle,
-  matchedColor,
 }: {
   originHtmlStr: string;
   indexTitle?: string;
-  matchedColor: string;
 }) => {
   let htmlStr: string;
 
   htmlStr = customIndex({
     htmlStr: originHtmlStr,
     indexTitle,
-    matchedColor,
   });
   htmlStr = changeTitle({ htmlStr: htmlStr });
   htmlStr = removeImgAnchor({ htmlStr: htmlStr });
@@ -186,7 +188,6 @@ const main = async () => {
   const resultHtml = parse({
     originHtmlStr,
     indexTitle: "목차",
-    matchedColor: "#f47676",
   });
 
   await Deno.writeTextFile(
