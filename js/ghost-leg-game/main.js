@@ -1,89 +1,58 @@
+import {
+  parseLines,
+  pathToDAttribute,
+  generateY,
+  svgStrToDom,
+  userPaths,
+  rangeRandom,
+} from "./util.js";
+
 const gameBoard = document.querySelector("main");
-const input = document.querySelector(".user-input");
 const startButton = document.querySelector("#jsStart");
 const countBlock = document.querySelector("#jsCountBlock");
-const countButtons = countBlock.querySelectorAll("button");
 const userCount = countBlock.querySelector("#jsCount");
 
 let store = [];
 let isStart = false;
+let isRunning = false;
 
-const parseLines = (lineElements) => {
-  const lines = [];
+const COLOR = ["red", "blue", "green"];
+const DURATION = 3000;
+const HEIGHT = 300;
 
-  // lineElements.forEach((line) => {
-  //   const x1 = parseFloat(line.getAttribute("x1"));
-  //   const y1 = parseFloat(line.getAttribute("y1"));
-  //   const x2 = parseFloat(line.getAttribute("x2"));
-  //   const y2 = parseFloat(line.getAttribute("y2"));
-  //   lines.push([
-  //     { x: x1, y: y1 },
-  //     { x: x2, y: y2 },
-  //   ]);
-  // });
-  return lines;
-};
-
-const addEdge = (graph, u, v) => {
-  if (!graph[u]) {
-    graph[u] = [];
+const makeResult = (paths) => {
+  const result = paths.map(() => null);
+  for (let i = 0; i < paths.length; i++) {
+    const index = Math.floor(paths[i][paths[i].length - 1].x / 100);
+    result[index] = i;
   }
-  if (!graph[v]) {
-    graph[v] = [];
+  return result;
+};
+
+const makePath = ({ verticalLines, horizontalLines }) => {
+  const vLines = svgStrToDom(verticalLines);
+  const hLines = svgStrToDom(horizontalLines);
+  const parsedVLines = parseLines(vLines.documentElement);
+  const parsedHLines = parseLines(hLines.documentElement);
+  const paths = userPaths(parsedVLines, parsedHLines);
+  return paths;
+};
+
+const makePoint = (paths) => {
+  let points = "";
+  for (let num = 0; num < paths.length; num++) {
+    const path = paths[num];
+    const dAttribute = pathToDAttribute(path);
+
+    points += `<circle id="movingPoint_${num}" cx="0" cy="0" r="5" fill="${COLOR[num]}" />
+    <path id="motionPath_${num}" fill="none" stroke="none" d="${dAttribute}" />
+    <animateMotion xlink:href="#movingPoint_${num}" dur="${DURATION}ms" fill="freeze">
+      <mpath xlink:href="#motionPath_${num}" />
+    </animateMotion>`;
   }
-  graph[u].push(v);
-};
 
-const dfs = (graph, start, path = [], visited = new Set()) => {
-  path.push(start);
-  visited.add(start);
-  if (!graph[start] || graph[start].length === 0) {
-    return path;
-  }
-  for (let node of graph[start]) {
-    if (!visited.has(node)) {
-      const newPath = dfs(graph, node, path, visited);
-      if (newPath) {
-        return newPath;
-      }
-    }
-  }
-  return path;
+  return points;
 };
-
-const pointToString = (point) => {
-  return `${point.x},${point.y}`;
-};
-
-const stringToPoint = (str) => {
-  const [x, y] = str.split(",").map(Number);
-  return { x, y };
-};
-
-const pathToDAttribute = (path) => {
-  return path
-    .map((point, index) => {
-      const { x, y } = stringToPoint(point);
-      return index === 0 ? `M${x},${y}` : `L${x},${y}`;
-    })
-    .join(" ");
-};
-
-const generateY = (totalHeight) => {
-  const padding = 20;
-  const y =
-    Math.ceil(Math.random() * (totalHeight - padding - padding + 1)) +
-    padding -
-    1;
-  const isInclude = store.some((_y) => Math.abs(y - _y) < 5);
-  if (isInclude) return generateY(totalHeight);
-  else {
-    return y;
-  }
-};
-
-const makeLadderBoard = ({ lines, points, totalWidth, totalHeight }) =>
-  `<svg width="${totalWidth}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg">${lines}${points}</svg>`;
 
 const makeLadderVertical = ({ totalWidth, totalHeight, count }) =>
   Array.from({ length: count })
@@ -102,7 +71,7 @@ const makeLadderHorizontal = ({ totalWidth, totalHeight, count }) =>
     .map((_, index) => {
       const x1 = (totalWidth / (count * 2)) * (index + (index + 1));
       const x2 = (totalWidth / (count * 2)) * (index + (index + 3));
-      const y = generateY(totalHeight);
+      const y = generateY(totalHeight, store);
       store.push(y);
       return count - 1 === index
         ? ""
@@ -110,68 +79,58 @@ const makeLadderHorizontal = ({ totalWidth, totalHeight, count }) =>
     })
     .join("");
 
-const makePoint = ({ verticalLines }) => {
-  const doc = new DOMParser().parseFromString(
-    `<svg>${verticalLines}</svg>`,
-    "text/xml"
-  );
-
-  const graph = {};
-  const lines = parseLines(doc);
-  console.log({ lines });
-  for (let line of lines) {
-    const [start, end] = line;
-    addEdge(graph, pointToString(start), pointToString(end));
-  }
-  const start = { x: 50, y: 0 };
-  const path = dfs(graph, pointToString(start));
-  if (!path) return;
-  const dAttribute = pathToDAttribute(path);
-
-  return ` <circle id="movingPoint" cx="50" cy="0" r="5" fill="red" />
-  <path id="motionPath" fill="none" stroke="none" d="${dAttribute}" />
-  <animateMotion xlink:href="#movingPoint" dur="10s" repeatCount="indefinite">
-    <mpath xlink:href="#motionPath" />
-  </animateMotion>`;
-};
-
 const makeGameBoard = () => {
   store = [];
   const count = parseInt(userCount.innerText);
   const totalWidth = count * 2 * 50;
-  const totalHeight = 400;
+  const totalHeight = HEIGHT;
   const verticalLines = makeLadderVertical({ totalWidth, totalHeight, count });
-  const lines =
-    verticalLines +
-    makeLadderHorizontal({ totalWidth, totalHeight, count }) +
-    makeLadderHorizontal({ totalWidth, totalHeight, count }) +
-    makeLadderHorizontal({ totalWidth, totalHeight, count });
-  const points = makePoint({ verticalLines });
-  const game = makeLadderBoard({ lines, points, totalWidth, totalHeight });
-  gameBoard.innerHTML =
-    "<div><div><input class='user-input' type='text' /></div><div><input class='end-input' type='text' /></div></div>".repeat(
-      count
-    );
-  gameBoard.innerHTML = `<div>${gameBoard.innerHTML}</div>` + game;
+  let horizontalLines = "";
+  const horizontalCount = rangeRandom({ min: 3, max: 5 });
+  for (let i = 0; i < horizontalCount; i++) {
+    horizontalLines += makeLadderHorizontal({ totalWidth, totalHeight, count });
+  }
+  const paths = makePath({ verticalLines, horizontalLines });
+  const points = makePoint(paths);
+  const game = `<svg width="${totalWidth}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">${
+    verticalLines + horizontalLines
+  }${points}</svg>`;
+
+  const prevSvg = gameBoard.querySelector("svg");
+  gameBoard.removeChild(prevSvg);
+
+  const board = gameBoard.querySelector("#jsBoard");
+  const svg = svgStrToDom(game).querySelector("svg");
+  board.after(svg);
+
+  setTimeout(() => {
+    isRunning = false;
+    const userInputs = document.querySelectorAll(".user-input");
+    const endInputs = document.querySelectorAll(".end-input");
+    const result = makeResult(paths);
+    result.forEach((index, i) => {
+      endInputs[i].parentElement.parentElement.after(userInputs[index].value);
+    });
+  }, DURATION + 500);
 };
 
 const makeDefaultLine = () => {
   const count = parseInt(userCount.innerText);
   const totalWidth = count * 2 * 50;
-  const totalHeight = 400;
-  const lines = makeLadderVertical({ totalWidth, totalHeight, count });
-  const game = makeLadderBoard({ lines, totalWidth, totalHeight });
+  const totalHeight = HEIGHT;
+  const verticalLines = makeLadderVertical({ totalWidth, totalHeight, count });
+  const game = `<svg width="${totalWidth}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg">${verticalLines}</svg>`;
+
   gameBoard.innerHTML =
-    "<div><div><input class='user-input' type='text' /></div><div><input class='end-input' type='text' /></div></div>".repeat(
+    `<div id="jsBoard">${"<div><div><div><input class='user-input' type='text' /></div><div><input class='end-input' type='text' /></div></div></div>".repeat(
       count
-    );
-  gameBoard.innerHTML = `<div>${gameBoard.innerHTML}</div>` + game;
+    )}</div>` + game;
 };
 
 const handleCountClick = (e) => {
   const count = parseInt(userCount.innerText);
   if (e.target.innerText === "+") {
-    if (count >= 12) return;
+    if (count >= 15) return;
     userCount.innerText = count + 1;
     makeDefaultLine();
   } else if (e.target.innerText === "-") {
@@ -182,6 +141,7 @@ const handleCountClick = (e) => {
 };
 
 const handleStartClick = () => {
+  if (isRunning) return;
   if (isStart) {
     isStart = false;
     startButton.innerText = "시작 !";
@@ -190,6 +150,7 @@ const handleStartClick = () => {
   }
   makeGameBoard();
   isStart = true;
+  isRunning = true;
   startButton.innerText = "다시하기";
 };
 
