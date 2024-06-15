@@ -6,6 +6,7 @@ import {
   userPaths,
   rangeRandom,
 } from "./util.js";
+import { COLORS } from "./constant.js";
 
 const gameBoard = document.querySelector("main");
 const startButton = document.querySelector("#jsStart");
@@ -16,7 +17,6 @@ let store = [];
 let isStart = false;
 let isRunning = false;
 
-const COLOR = ["red", "blue", "green"];
 const DURATION = 3000;
 const HEIGHT = 300;
 
@@ -38,13 +38,25 @@ const makePath = ({ verticalLines, horizontalLines }) => {
   return paths;
 };
 
+const makePathLine = ({ paths, index }) => {
+  const path = paths[index];
+  const dAttribute = pathToDAttribute(path);
+  const line = `
+  <path id="animatedResultPath" fill="none" stroke="${COLORS[index]}" stroke-width="4" d="${dAttribute}" stroke-dasharray="0, 10000" />
+  <animate id="resultPathAnimation" xlink:href="#animatedResultPath" attributeName="stroke-dasharray" from="0, 10000" to="10000, 0" dur="${DURATION}ms" fill="freeze" />
+  `;
+
+  return line;
+};
+
 const makePoint = (paths) => {
   let points = "";
   for (let num = 0; num < paths.length; num++) {
     const path = paths[num];
     const dAttribute = pathToDAttribute(path);
 
-    points += `<circle id="movingPoint_${num}" cx="0" cy="0" r="5" fill="${COLOR[num]}" />
+    points += `
+    <circle id="movingPoint_${num}" cx="0" cy="0" r="8" fill="${COLORS[num]}" />
     <path id="motionPath_${num}" fill="none" stroke="none" d="${dAttribute}" />
     <animateMotion xlink:href="#movingPoint_${num}" dur="${DURATION}ms" fill="freeze">
       <mpath xlink:href="#motionPath_${num}" />
@@ -92,16 +104,16 @@ const makeGameBoard = () => {
   }
   const paths = makePath({ verticalLines, horizontalLines });
   const points = makePoint(paths);
-  const game = `<svg width="${totalWidth}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">${
+  const game = `<svg width="${totalWidth}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg">${
     verticalLines + horizontalLines
-  }${points}</svg>`;
+  }</svg>`;
 
-  const prevSvg = gameBoard.querySelector("svg");
-  gameBoard.removeChild(prevSvg);
+  const animation = `<svg width="${totalWidth}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">${points}</svg>`;
 
-  const board = gameBoard.querySelector("#jsBoard");
-  const svg = svgStrToDom(game).querySelector("svg");
-  board.after(svg);
+  const gameSvg = svgStrToDom(game).querySelector("svg");
+  const animationSvg = svgStrToDom(animation).querySelector("svg");
+  gameBoard.appendChild(gameSvg);
+  gameBoard.appendChild(animationSvg);
 
   setTimeout(() => {
     isRunning = false;
@@ -109,9 +121,26 @@ const makeGameBoard = () => {
     const endInputs = document.querySelectorAll(".end-input");
     const result = makeResult(paths);
     result.forEach((index, i) => {
-      endInputs[i].parentElement.parentElement.after(userInputs[index].value);
+      const span = document.createElement("span");
+      span.classList.add("result-box");
+      const borderStyle = `2px solid ${COLORS[index]}`;
+      const boxShadowStyle = `4px 4px 0px ${COLORS[index]}`;
+      span.style.border = borderStyle;
+      span.style.boxShadow = boxShadowStyle;
+      span.innerText = userInputs[index].value;
+      endInputs[i].style.border = borderStyle;
+      endInputs[i].style.boxShadow = boxShadowStyle;
+      endInputs[i].parentElement.parentElement.after(span);
+      span.addEventListener("click", () => {
+        document.querySelector("#animatedResultPath")?.remove();
+        document.querySelector("#resultPathAnimation")?.remove();
+        let pathLine = makePathLine({ paths, index });
+        pathLine = `<svg width="${totalWidth}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">${pathLine}</svg>`;
+        const pathLineSvg = svgStrToDom(pathLine).querySelector("svg");
+        gameBoard.appendChild(pathLineSvg);
+      });
     });
-  }, DURATION + 500);
+  }, DURATION);
 };
 
 const makeDefaultLine = () => {
@@ -121,10 +150,39 @@ const makeDefaultLine = () => {
   const verticalLines = makeLadderVertical({ totalWidth, totalHeight, count });
   const game = `<svg width="${totalWidth}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg">${verticalLines}</svg>`;
 
-  gameBoard.innerHTML =
-    `<div id="jsBoard">${"<div><div><div><input class='user-input' type='text' /></div><div><input class='end-input' type='text' /></div></div></div>".repeat(
-      count
-    )}</div>` + game;
+  let inputs = "";
+  for (let i = 0; i < count; i++) {
+    inputs += `<div><div><div><input class='user-input' type='text' style='border:2px solid ${COLORS[i]};box-shadow: 4px 4px 0px ${COLORS[i]};' /></div><div><input class='end-input' type='text' style='border:2px solid black;box-shadow: 4px 4px 0px black;' /></div></div></div>`;
+  }
+
+  gameBoard.innerHTML = `<div id="jsBoard">${inputs}</div>` + game;
+};
+
+const checkInputs = () => {
+  const userInputs = document.querySelectorAll(".user-input");
+  const endInputs = document.querySelectorAll(".end-input");
+  const userInputCheck = Array.from(userInputs).every((input) => !!input.value);
+  const endInputCheck = !Array.from(endInputs).every((input) => !input.value);
+
+  return userInputCheck && endInputCheck;
+};
+
+const disableInputs = (disable) => {
+  const inputs = document.querySelectorAll("input");
+  inputs.forEach((input) => {
+    if (disable) {
+      input.setAttribute("disabled", true);
+    } else {
+      input.removeAttribute("disabled");
+    }
+  });
+};
+
+const resetStart = () => {
+  isStart = false;
+  startButton.innerText = "시작 !";
+  disableInputs(false);
+  makeDefaultLine();
 };
 
 const handleCountClick = (e) => {
@@ -132,22 +190,26 @@ const handleCountClick = (e) => {
   if (e.target.innerText === "+") {
     if (count >= 15) return;
     userCount.innerText = count + 1;
-    makeDefaultLine();
+    resetStart();
   } else if (e.target.innerText === "-") {
     if (count <= 2) return;
     userCount.innerText = count - 1;
-    makeDefaultLine();
+    resetStart();
   }
 };
 
 const handleStartClick = () => {
   if (isRunning) return;
   if (isStart) {
-    isStart = false;
-    startButton.innerText = "시작 !";
-    makeDefaultLine();
+    resetStart();
     return;
   }
+  const valid = checkInputs();
+  if (!valid) {
+    alert("상단 모든 입력창, 하단 한개 이상의 입력창에 값을 입력해주세요.");
+    return;
+  }
+  disableInputs(true);
   makeGameBoard();
   isStart = true;
   isRunning = true;
@@ -157,6 +219,6 @@ const handleStartClick = () => {
 const main = () => {
   countBlock.addEventListener("click", handleCountClick);
   startButton.addEventListener("click", handleStartClick);
-  makeDefaultLine();
+  resetStart();
 };
 main();
