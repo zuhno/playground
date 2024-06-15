@@ -10,6 +10,7 @@ import { COLORS } from "./constant.js";
 
 const gameBoard = document.querySelector("main");
 const startButton = document.querySelector("#jsStart");
+const resetButton = document.querySelector("#jsReset");
 const countBlock = document.querySelector("#jsCountBlock");
 const userCount = countBlock.querySelector("#jsCount");
 
@@ -158,6 +159,17 @@ const makeDefaultLine = () => {
   gameBoard.innerHTML = `<div id="jsBoard">${inputs}</div>` + game;
 };
 
+const makeRetryLine = () => {
+  const prevUserInputs = document.querySelectorAll(".user-input");
+
+  makeDefaultLine();
+
+  const newUserInputs = gameBoard.querySelectorAll(".user-input");
+  for (let i = 0; i < newUserInputs.length; i++) {
+    newUserInputs[i].value = prevUserInputs[i]?.value || "";
+  }
+};
+
 const checkInputs = () => {
   const userInputs = document.querySelectorAll(".user-input");
   const endInputs = document.querySelectorAll(".end-input");
@@ -178,11 +190,12 @@ const disableInputs = (disable) => {
   });
 };
 
-const resetStart = () => {
+const toggleStartBtn = (retry) => {
   isStart = false;
   startButton.innerText = "시작 !";
   disableInputs(false);
-  makeDefaultLine();
+  if (retry) makeRetryLine();
+  else makeDefaultLine();
 };
 
 const handleCountClick = (e) => {
@@ -190,18 +203,18 @@ const handleCountClick = (e) => {
   if (e.target.innerText === "+") {
     if (count >= 15) return;
     userCount.innerText = count + 1;
-    resetStart();
+    toggleStartBtn(true);
   } else if (e.target.innerText === "-") {
     if (count <= 2) return;
     userCount.innerText = count - 1;
-    resetStart();
+    toggleStartBtn(true);
   }
 };
 
 const handleStartClick = () => {
   if (isRunning) return;
   if (isStart) {
-    resetStart();
+    toggleStartBtn(true);
     return;
   }
   const valid = checkInputs();
@@ -216,9 +229,15 @@ const handleStartClick = () => {
   startButton.innerText = "다시하기";
 };
 
+const handleResetClick = () => {
+  if (isRunning) return;
+  toggleStartBtn(false);
+};
+
 const main = () => {
   countBlock.addEventListener("click", handleCountClick);
   startButton.addEventListener("click", handleStartClick);
-  resetStart();
+  resetButton.addEventListener("click", handleResetClick);
+  toggleStartBtn();
 };
 main();
