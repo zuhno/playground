@@ -5,21 +5,40 @@ import {
   svgStrToDom,
   userPaths,
   rangeRandom,
+  generateHtml,
 } from "./util.js";
-import { COLORS } from "./constant.js";
+import { COLORS, DURATION } from "./constant.js";
 
-const gameBoard = document.querySelector("main");
+const main = document.querySelector("main");
 const startButton = document.querySelector("#jsStart");
 const resetButton = document.querySelector("#jsReset");
 const countBlock = document.querySelector("#jsCountBlock");
 const userCount = countBlock.querySelector("#jsCount");
 
-let store = [];
 let isStart = false;
 let isRunning = false;
 
-const DURATION = 3000;
-const HEIGHT = 300;
+const getTotalHeight = () => {
+  const inputWrapper = main.querySelector(".input-wrapper");
+  const userInput = main.querySelector(".user-input");
+  const endInput = main.querySelector(".end-input");
+  const inputWrapperHeight = getComputedStyle(inputWrapper).height;
+  const userInputHeight = getComputedStyle(userInput).height;
+  const endInputHeight = getComputedStyle(endInput).height;
+
+  return (
+    parseFloat(inputWrapperHeight) -
+    parseFloat(userInputHeight) -
+    parseFloat(endInputHeight)
+  );
+};
+
+const getScreen = () => {
+  const count = parseInt(userCount.innerText);
+  const totalWidth = count * 2 * 50;
+  const totalHeight = getTotalHeight();
+  return { count, totalWidth, totalHeight };
+};
 
 const makeResult = (paths) => {
   const result = paths.map(() => null);
@@ -42,121 +61,148 @@ const makePath = ({ verticalLines, horizontalLines }) => {
 const makePathLine = ({ paths, index }) => {
   const path = paths[index];
   const dAttribute = pathToDAttribute(path);
-  const line = `
-  <path id="animatedResultPath" fill="none" stroke="${COLORS[index]}" stroke-width="4" d="${dAttribute}" stroke-dasharray="0, 10000" />
-  <animate id="resultPathAnimation" xlink:href="#animatedResultPath" attributeName="stroke-dasharray" from="0, 10000" to="10000, 0" dur="${DURATION}ms" fill="freeze" />
-  `;
-
-  return line;
+  return generateHtml.animatedPath({
+    color: COLORS[index],
+    d: dAttribute,
+    duration: DURATION,
+  });
 };
 
 const makePoint = (paths) => {
   let points = "";
-  for (let num = 0; num < paths.length; num++) {
-    const path = paths[num];
+  for (let i = 0; i < paths.length; i++) {
+    const path = paths[i];
     const dAttribute = pathToDAttribute(path);
-
-    points += `
-    <circle id="movingPoint_${num}" cx="0" cy="0" r="8" fill="${COLORS[num]}" />
-    <path id="motionPath_${num}" fill="none" stroke="none" d="${dAttribute}" />
-    <animateMotion xlink:href="#movingPoint_${num}" dur="${DURATION}ms" fill="freeze">
-      <mpath xlink:href="#motionPath_${num}" />
-    </animateMotion>`;
+    points += generateHtml.animatedCircle({
+      index: i,
+      color: COLORS[i],
+      d: dAttribute,
+      duration: DURATION,
+    });
   }
 
   return points;
 };
 
-const makeLadderVertical = ({ totalWidth, totalHeight, count }) =>
-  Array.from({ length: count })
-    .map(
-      (_, index) =>
-        `<line x1="${
-          (totalWidth / (count * 2)) * (index + (index + 1))
-        }" y1="0" x2="${
-          (totalWidth / (count * 2)) * (index + (index + 1))
-        }" y2="${totalHeight}" stroke="black" stroke-width="2" />`
-    )
-    .join("");
-
-const makeLadderHorizontal = ({ totalWidth, totalHeight, count }) =>
+const makeVerticalLine = ({ totalWidth, totalHeight, count }) =>
   Array.from({ length: count })
     .map((_, index) => {
-      const x1 = (totalWidth / (count * 2)) * (index + (index + 1));
-      const x2 = (totalWidth / (count * 2)) * (index + (index + 3));
-      const y = generateY(totalHeight, store);
-      store.push(y);
-      return count - 1 === index
-        ? ""
-        : `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="black" stroke-width="2" />`;
+      const x = (totalWidth / (count * 2)) * (index + (index + 1));
+      return generateHtml.line({ x1: x, y1: 0, x2: x, y2: totalHeight });
     })
     .join("");
 
-const makeGameBoard = () => {
-  store = [];
-  const count = parseInt(userCount.innerText);
-  const totalWidth = count * 2 * 50;
-  const totalHeight = HEIGHT;
-  const verticalLines = makeLadderVertical({ totalWidth, totalHeight, count });
-  let horizontalLines = "";
-  const horizontalCount = rangeRandom({ min: 3, max: 5 });
-  for (let i = 0; i < horizontalCount; i++) {
-    horizontalLines += makeLadderHorizontal({ totalWidth, totalHeight, count });
-  }
-  const paths = makePath({ verticalLines, horizontalLines });
-  const points = makePoint(paths);
-  const game = `<svg width="${totalWidth}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg">${
-    verticalLines + horizontalLines
-  }</svg>`;
+const makeHorizontalLine = ({ totalWidth, totalHeight, count, store }) =>
+  Array.from({ length: count })
+    .map((_, index) => {
+      if (count - 1 === index) return "";
+      const x1 = (totalWidth / (count * 2)) * (index + (index + 1));
+      const x2 = (totalWidth / (count * 2)) * (index + (index + 3));
+      const y = generateY({ totalHeight, store });
+      store.push(y);
+      return generateHtml.line({ x1, y1: y, x2, y2: y });
+    })
+    .join("");
 
-  const animation = `<svg width="${totalWidth}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">${points}</svg>`;
+const makeGameBoard = (horizontalCount) => {
+  horizontalCount = horizontalCount || rangeRandom({ min: 4, max: 5 });
 
-  const gameSvg = svgStrToDom(game).querySelector("svg");
-  const animationSvg = svgStrToDom(animation).querySelector("svg");
-  gameBoard.appendChild(gameSvg);
-  gameBoard.appendChild(animationSvg);
+  try {
+    const { count, totalWidth, totalHeight } = getScreen();
 
-  setTimeout(() => {
-    isRunning = false;
-    const userInputs = document.querySelectorAll(".user-input");
-    const endInputs = document.querySelectorAll(".end-input");
-    const result = makeResult(paths);
-    result.forEach((index, i) => {
-      const span = document.createElement("span");
-      span.classList.add("result-box");
-      const borderStyle = `2px solid ${COLORS[index]}`;
-      const boxShadowStyle = `4px 4px 0px ${COLORS[index]}`;
-      span.style.border = borderStyle;
-      span.style.boxShadow = boxShadowStyle;
-      span.innerText = userInputs[index].value;
-      endInputs[i].style.border = borderStyle;
-      endInputs[i].style.boxShadow = boxShadowStyle;
-      endInputs[i].parentElement.parentElement.after(span);
-      span.addEventListener("click", () => {
-        document.querySelector("#animatedResultPath")?.remove();
-        document.querySelector("#resultPathAnimation")?.remove();
-        let pathLine = makePathLine({ paths, index });
-        pathLine = `<svg width="${totalWidth}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">${pathLine}</svg>`;
-        const pathLineSvg = svgStrToDom(pathLine).querySelector("svg");
-        gameBoard.appendChild(pathLineSvg);
+    const store = [];
+    let horizontalLines = "";
+    for (let i = 0; i < horizontalCount; i++) {
+      horizontalLines += makeHorizontalLine({
+        totalWidth,
+        totalHeight,
+        count,
+        store,
       });
+    }
+    const verticalLines = makeVerticalLine({ totalWidth, totalHeight, count });
+    const paths = makePath({ verticalLines, horizontalLines });
+    const points = makePoint(paths);
+    const game = generateHtml.svg({
+      totalWidth,
+      totalHeight,
+      content: verticalLines + horizontalLines,
     });
-  }, DURATION);
+    const animation = generateHtml.svg({
+      totalWidth,
+      totalHeight,
+      isAnimation: true,
+      content: points,
+    });
+
+    const gameSvg = svgStrToDom(game).querySelector("svg");
+    const animationSvg = svgStrToDom(animation).querySelector("svg");
+    main.appendChild(gameSvg);
+    main.appendChild(animationSvg);
+
+    setTimeout(() => {
+      isRunning = false;
+      const userInputs = document.querySelectorAll(".user-input");
+      const endInputs = document.querySelectorAll(".end-input");
+      const result = makeResult(paths);
+
+      result.forEach((index, i) => {
+        const span = document.createElement("span");
+        span.classList.add("result-box");
+        const borderStyle = `2px solid ${COLORS[index]}`;
+        const boxShadowStyle = `4px 4px 0px ${COLORS[index]}`;
+        span.style.border = borderStyle;
+        span.style.boxShadow = boxShadowStyle;
+        span.innerText = userInputs[index].value;
+        endInputs[i].style.border = borderStyle;
+        endInputs[i].style.boxShadow = boxShadowStyle;
+        endInputs[i].parentElement.parentElement.after(span);
+
+        span.addEventListener("click", () => {
+          document.querySelector("#animatedResultPath")?.remove();
+          document.querySelector("#resultPathAnimation")?.remove();
+          const pathLine = makePathLine({ paths, index });
+          const animationPathLine = generateHtml.svg({
+            totalWidth,
+            totalHeight,
+            isAnimation: true,
+            content: pathLine,
+          });
+          const pathLineSvg =
+            svgStrToDom(animationPathLine).querySelector("svg");
+          main.appendChild(pathLineSvg);
+        });
+      });
+    }, DURATION);
+  } catch {
+    makeGameBoard(Math.max(horizontalCount - 1, 1));
+  }
 };
 
 const makeDefaultLine = () => {
-  const count = parseInt(userCount.innerText);
-  const totalWidth = count * 2 * 50;
-  const totalHeight = HEIGHT;
-  const verticalLines = makeLadderVertical({ totalWidth, totalHeight, count });
-  const game = `<svg width="${totalWidth}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg">${verticalLines}</svg>`;
+  const { count, totalWidth, totalHeight } = getScreen();
+
+  const verticalLines = makeVerticalLine({
+    totalWidth,
+    totalHeight,
+    count,
+    store: [],
+  });
+  const game = generateHtml.svg({
+    totalWidth,
+    totalHeight,
+    content: verticalLines,
+  });
 
   let inputs = "";
   for (let i = 0; i < count; i++) {
-    inputs += `<div><div><div><input class='user-input' type='text' style='border:2px solid ${COLORS[i]};box-shadow: 4px 4px 0px ${COLORS[i]};' /></div><div><input class='end-input' type='text' style='border:2px solid black;box-shadow: 4px 4px 0px black;' /></div></div></div>`;
+    inputs += generateHtml.inputs({ color: COLORS[i] });
   }
 
-  gameBoard.innerHTML = `<div id="jsBoard">${inputs}</div>` + game;
+  main.innerHTML = generateHtml.article({
+    content: inputs,
+    otherContent: game,
+  });
 };
 
 const makeRetryLine = () => {
@@ -164,7 +210,7 @@ const makeRetryLine = () => {
 
   makeDefaultLine();
 
-  const newUserInputs = gameBoard.querySelectorAll(".user-input");
+  const newUserInputs = main.querySelectorAll(".user-input");
   for (let i = 0; i < newUserInputs.length; i++) {
     newUserInputs[i].value = prevUserInputs[i]?.value || "";
   }
@@ -182,11 +228,8 @@ const checkInputs = () => {
 const disableInputs = (disable) => {
   const inputs = document.querySelectorAll("input");
   inputs.forEach((input) => {
-    if (disable) {
-      input.setAttribute("disabled", true);
-    } else {
-      input.removeAttribute("disabled");
-    }
+    if (disable) input.setAttribute("disabled", true);
+    else input.removeAttribute("disabled");
   });
 };
 
@@ -199,6 +242,7 @@ const toggleStartBtn = (retry) => {
 };
 
 const handleCountClick = (e) => {
+  if (isRunning) return;
   const count = parseInt(userCount.innerText);
   if (e.target.innerText === "+") {
     if (count >= 15) return;
@@ -234,10 +278,11 @@ const handleResetClick = () => {
   toggleStartBtn(false);
 };
 
-const main = () => {
+const init = () => {
   countBlock.addEventListener("click", handleCountClick);
   startButton.addEventListener("click", handleStartClick);
   resetButton.addEventListener("click", handleResetClick);
   toggleStartBtn();
 };
-main();
+
+init();

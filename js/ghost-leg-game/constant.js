@@ -15,3 +15,5 @@ export const COLORS = [
   "#DC143C", // 크림슨
   "#8B0000", // 다크레드
 ];
+
+export const DURATION = 3000;
