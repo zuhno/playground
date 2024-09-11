@@ -74,12 +74,13 @@ async function extractTextFromImage(imagePath) {
 
 // 사용 예제
 (async () => {
-  const imagePath = "./_yoga-8165759_640.jpg"; // 입력 이미지 파일 경로
-  const text = "이준오 짱짱맨";
-  const outputImagePath = "output.png"; // 출력 이미지 파일 경로
+  // const imagePath = "./_yoga-8165759_640.jpg"; // 입력 이미지 파일 경로
+  // const text = "이준오 짱짱맨";
+  // const outputImagePath = "output.png"; // 출력 이미지 파일 경로
+  const outputImagePath = "20210427171342_3f9e870b5a69bf77409ad8bfb4e5f2f1_IMAG01_6.jpg"; // 출력 이미지 파일 경로
 
-  await hideTextInImage(imagePath, text, outputImagePath);
-  console.log("Text hidden in image successfully.");
+  // await hideTextInImage(imagePath, text, outputImagePath);
+  // console.log("Text hidden in image successfully.");
 
   const extractedText = await extractTextFromImage(outputImagePath);
   console.log("Extracted Text:", extractedText);
