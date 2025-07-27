@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Dash.js Rocks</title>
+  <style>
+    video {
+      width: 200px;
+    }
+  </style>
+  <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+</head>
+
+<body>
+  <div>
+    <video id="videoPlayer" controls autoplay loop preload="metadata"></video>
+  </div>
+  <script>
+    const player = dashjs.MediaPlayer().create();
+
+    player.initialize(
+      document.querySelector("#videoPlayer"),
+      "http://127.0.0.1:8080/video/manifest.mpd",
+      true
+    );
+  </script>
+</body>
+
+</html>

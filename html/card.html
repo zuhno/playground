@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <style>
+    #container {
+      width: fit-content;
+      height: fit-content;
+      position: relative;
+    }
+
+    #card {
+      background-image: url("https://primary.jwwb.nl/public/h/t/i/temp-zjpebgcobmaxydcmrfwb/1400_sp_311_195nuohv-2.jpg");
+      background-size: contain;
+      width: 300px;
+      height: 420px;
+    }
+
+    #overlay {
+      position: absolute;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      opacity: 0.8;
+      background: rgb(255, 255, 255);
+      background: linear-gradient(100deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0) 25%,
+          rgba(193, 193, 255, 0.7) 42%,
+          rgba(229, 229, 255, 1) 50%,
+          rgba(184, 184, 255, 0.7) 58%,
+          rgba(255, 255, 255, 0) 75%,
+          rgba(255, 255, 255, 0) 100%);
+      mix-blend-mode: color-dodge;
+      background-size: 150% 150%;
+      background-position: 100%;
+      background-repeat: repeat;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container">
+    <div id="overlay"></div>
+    <div id="card"></div>
+  </div>
+  <script>
+    const container = document.getElementById("container");
+    const overlay = document.getElementById("overlay");
+
+    container.addEventListener("mousemove", (e) => {
+      container.style.transition = "all 0.1s";
+      overlay.style.transition = "all 0.1s";
+
+      const {offsetX, offsetY} = e;
+
+      const x = (-2 / 15) * offsetX + 20;
+      const y = (2 / 21) * offsetY - 20;
+
+      container.style.transform = `perspective(400px) rotateY(${x}deg) rotateX(${y}deg)`;
+      overlay.style.backgroundPosition = `${x * 10 + y * 8 + 60}%`;
+    });
+
+    container.addEventListener("mouseleave", () => {
+      container.style.transition = "all 1s";
+      overlay.style.transition = "all 1s";
+
+      container.style.transform = "initial";
+      overlay.style.backgroundPosition = "100%";
+    });
+  </script>
+</body>
+
+</html>
