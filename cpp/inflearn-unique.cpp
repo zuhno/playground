@@ -1,5 +1,6 @@
-#include <iostream>
-#include <map>
+#define _GLIBCXX_HOSTED 1
+
+#include <bits/stdc++.h>
 
 std::map<int, int> map;
 

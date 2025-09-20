@@ -6,6 +6,7 @@ a.out*
 .vscode
 .DS_Store
 node_modules
+outputs
 /**/.next
 *.env
 *-config.json
@@ -15,4 +16,3 @@ dist/
 build/
 downloads
 logs
-outputs
