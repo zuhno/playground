@@ -1,3 +1,4 @@
 [submodule "__private"]
 	path = __private
 	url = git@github.com:zuhno/playground-private
+  branch = main
