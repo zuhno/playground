@@ -16,3 +16,4 @@ dist/
 build/
 downloads
 logs
+.sisyphus
